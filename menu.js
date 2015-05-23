@@ -30,8 +30,10 @@ var key = {
     220: '\\', 221: ']', 222: "'"
 };
 
+var MAIN_MENU = 0;
 var WAITING_ON_PLAYERS_MENU = 6;
 var CONNECTING_MENU = 7;
+var ROOM_UNAVALIABLE_MENU = 8;
 var currentMenu;
 /**
  * Show and hide menus.

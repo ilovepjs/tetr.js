@@ -34,14 +34,24 @@ function handleRoomCreated(roomID) {
     spriteCtxTwo = spriteCanvasTwo.getContext('2d');
 
     roomID = roomID;
-    history.replaceState({} , roomID, '/' + roomID);
+    window.location.hash = roomID;
+    //history.pushState({} , roomID, '/' + roomID);
 
-    //joinRoom();
+    joinRoom();
 }
 
 //TALKS TO GAMESERVER
 function joinRoom() {
-    gameClient.joinRoom(roomID)
+    if (currentMenu != CONNECTING_MENU) {
+        menu(CONNECTING_MENU);
+    }
+}
+
+//TALKS TO GAMESERVER
+function leaveRoom() {
+    roomID = '';
+    //gameClient.leaveRoom(roomID)
+    menu(MAIN_MENU);
 }
 
 //FROM GAMESERVER
@@ -203,4 +213,22 @@ function end() {
 function getSpriteCanvas(i) {
     var spriteSource = divs[i].dataset.spritecanvas;
     return document.getElementById(spriteSource);
+}
+
+window.onhashchange = function() {
+    hash = window.location.hash;
+    if (hash == '') {
+        leaveRoom();
+    } else {
+        roomID = hash.replace('#', '');
+        joinRoom();
+    }
+}
+
+window.onload = function() {
+    hash = window.location.hash;
+    if (window.location.hash != '') {
+        roomID = hash.replace('#', '');
+        joinRoom();
+    }
 }

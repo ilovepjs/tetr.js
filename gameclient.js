@@ -1,22 +1,23 @@
 MESSAGE_TYPES = {
     createRoom : 'createRoom',
     joinRoom : 'joinRoom',
+    leaveRoom : 'leaveRoom',
     start : 'requestGameStart',
     dropPiece : 'dropPiece',
     toppedOut : 'toppedOut'
 };
 
 //WHY DO I NEED THIS
-function GameClient() {
+function GameClient(url, protocols) {
+    //this.socket = new WebSocket(this.url, this.protocols);
+    //this.socket.onmessage = this.onmessage.bind(this);
+    //this.playerMapping = {}
     // this.socket = new WebSocket(this.url, this.protocols);
     // this.socket.onmessage = this.onmessage.bind(this);
 }
 
-GameClient.prototype.new = function(url, protocols) {
-    this.socket = new WebSocket(this.url, this.protocols);
-    this.socket.onmessage = this.onmessage.bind(this);
-    this.playerMapping = {}
-}
+//GameClient.prototype.new = function(url, protocols) {
+//}
 
 GameClient.prototype.close = function() {
     this.socket.close();
@@ -67,6 +68,14 @@ GameClient.prototype.createRoom = function() {
 };
 
 GameClient.prototype.joinRoom = function(roomID) {
+    data = {
+        type: MESSAGE_TYPES.leaveRoom,
+        room: roomID
+    };
+    this.send(JSON.stringify(data));
+};
+
+GameClient.prototype.leaveRoom = function(roomID) {
     data = {
         type: MESSAGE_TYPES.joinRoom,
         room: roomID
