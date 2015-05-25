@@ -17,7 +17,7 @@ var roomID;
 
 var host = false;
 
-var TEMP_LOSE = {};
+var TEMP_LOSE;
 
 //TALKS TO GAMESERVER
 function createRoom() {
@@ -30,18 +30,17 @@ function handleRoomCreated(roomID) {
     host = true;
     multiplayer = true;
 
-    spriteCanvasTwo = document.getElementById('spriteTwo');
-    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
-
     roomID = roomID;
     window.location.hash = roomID;
-    //history.pushState({} , roomID, '/' + roomID);
 
     joinRoom();
 }
 
 //TALKS TO GAMESERVER
 function joinRoom() {
+    spriteCanvasTwo = document.getElementById('spriteTwo');
+    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+
     if (currentMenu != CONNECTING_MENU) {
         menu(CONNECTING_MENU);
     }
@@ -62,17 +61,11 @@ function handlePlayerJoin() {
         createStack();
         numPlayers ++
 
-        //Show start game option to host when 2+ players
-        if (numPlayers == 1) {
-            menuDiv = window.document.getElementById('waiting-menu');
-            optionsUl = menuDiv.getElementsByTagName('ul').item(0);
+        clearStackCtxs();
 
-            startGameLi = window.document.createElement('li');
-            startGameAnchor = window.document.createElement('a');
-            startGameAnchor.innerHTML = 'Start Game';
-            startGameAnchor.onclick = serverStartGame;
-            startGameLi.appendChild(startGameAnchor);
-            optionsUl.appendChild(startGameLi);
+        //Show start game option to host when 2+ players
+        if (numPlayers == 1 && host) {
+            showStartGameButton();
         }
     }
 }
@@ -98,8 +91,6 @@ function createStack() {
     var stack = new Stack(stackCanvas.getContext("2d"));
     stack.new(10, 22);
     stacks[numPlayers] = stack;
-
-    clearStackCtxs();
 }
 
 //TALKS TO SERVER
@@ -107,14 +98,19 @@ function serverStartGame() {
     //Push on player's stack last
     divs.push(document.getElementById("b"));
     stacks[numPlayers] = getCurrentPlayerStack();
+}
 
-    //TODO: Move to from server code
+//FROM GAMESERVER
+function handleStartGame(randomSeed) {
+    //TODO: create random bag for players
+    TEMP_LOSE = {};
     init(2);
 }
 
 function clearStackCtxs() {
     for (var i = 0; i < numPlayers; i++) {
         var stackCtx = divs[i].getElementsByTagName("canvas")[0].getContext("2d");
+        stacks[i].new(10,22);
         clear(stackCtx);
     }
     resizeStackCanvases();
@@ -127,8 +123,8 @@ function drawStacks() {
 }
 
 function resizeStackCanvases() {
-    var cellSize = getCellSize() - (numPlayers * 5);
-    for (var i = 0; i <= numPlayers; i++) {
+    var cellSize = getCellSize() - (numPlayers * 6);
+    for (var i = 0; i < numPlayers; i++) {
         var canvas = divs[i].getElementsByTagName("canvas")[0];
         var msg = divs[i].getElementsByTagName("p")[0];
 
@@ -192,7 +188,7 @@ function endPlayer(id, status) {
     id += "";
     var msg = divs[id].getElementsByTagName("p")[0];
 
-    greyOutStack(stacks[id], getSpriteCanvas(i));
+    greyOutStack(stacks[id], getSpriteCanvas(id));
     msg.innerHTML = status;
 
     TEMP_LOSE[id + ""] = true;
@@ -202,17 +198,40 @@ function endPlayer(id, status) {
     }
 }
 
-function end() {
-    for (var i = 0; i < numPlayers; i++) {
-        console.log(i, "end");
-        endPlayer(i, LOSER);
+function end(winner) {
+    for (var i = 0; i <= numPlayers; i++) {
+        if (i == winner) {
+            endPlayer(i, WINNER);
+        } else {
+            endPlayer(i, LOSER);
+        }
     }
-    endPlayer(numPlayers, WINNER);
+
+    setTimeout(function() {
+        for (var i = 0; i < numPlayers; i++) {
+            var msg = divs[i].getElementsByTagName("p")[0];
+            msg.innerHTML = '';
+        }
+        clearStackCtxs();
+
+        menu(WAITING_ON_PLAYERS_MENU);
+    }, 3000);
+}
+
+function showStartGameButton() {
+    menuDiv = window.document.getElementById('waiting-menu');
+    optionsUl = menuDiv.getElementsByTagName('ul').item(0);
+
+    startGameLi = window.document.createElement('li');
+    startGameAnchor = window.document.createElement('a');
+    startGameAnchor.innerHTML = 'Start Game';
+    startGameAnchor.onclick = serverStartGame;
+    startGameLi.appendChild(startGameAnchor);
+    optionsUl.appendChild(startGameLi);
 }
 
 function getSpriteCanvas(i) {
-    var spriteSource = divs[i].dataset.spritecanvas;
-    return document.getElementById(spriteSource);
+    return document.getElementById(divs[i].dataset.spritecanvas);
 }
 
 window.onhashchange = function() {
@@ -231,4 +250,12 @@ window.onload = function() {
         roomID = hash.replace('#', '');
         joinRoom();
     }
+}
+
+function tempStart() {
+    handleRoomCreated('asd')
+    handlePlayerJoin()
+    handlePlayerJoin()
+    serverStartGame()
+    handleStartGame()
 }

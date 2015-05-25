@@ -189,7 +189,6 @@ Stack.prototype.draw = function (spriteCanvas) {
 };
 
 function greyOutStack(stack, canvas) {
-    console.log(stack.ctx.canvas, canvas);
     for (var x = 0; x <= 21; x++) {
         greyOutStackLevel(stack, canvas, x);
     }

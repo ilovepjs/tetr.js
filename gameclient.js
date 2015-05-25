@@ -12,8 +12,6 @@ function GameClient(url, protocols) {
     //this.socket = new WebSocket(this.url, this.protocols);
     //this.socket.onmessage = this.onmessage.bind(this);
     //this.playerMapping = {}
-    // this.socket = new WebSocket(this.url, this.protocols);
-    // this.socket.onmessage = this.onmessage.bind(this);
 }
 
 //GameClient.prototype.new = function(url, protocols) {
@@ -115,13 +113,17 @@ GameClient.prototype.removePlayerToMapping = function(playerID) {
 }
 
 
-    //need to send over player tokens at he beginnging of a game os i can map it to a board id
+//stop making it send 40lines for multiplayer
+//stop adding this player stack every time game is restarted
+//go back to sprint after multiplayer (multipalyer = false)
+//handle numPlayers on joins during a game
+//handle win lose screen
+//refactor menus
+//when num drops below 2 start button bye bye
+//fix url mapping on menu screen
+//need to send over player tokens at he beginnging of a game os i can map it to a board id
 //convert pieces for internal representation of board
 //make rotation and indexes map up
-    //add room id to URL --> best way of handling this? use a eventlistener and then connect or what 
-    // https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history
-    // push pop state as leave room
-//different way of dropping pieces, if you give me a board theyre all grey, think it'll be cooler to go for straight real time 
-// and ill figure out a way to represent it internally 
-//only host can start game
+//different way of dropping pieces, if you give me a board theyre all grey, think it'll be cooler to go for straight real time
+// and ill figure out a way to represent it internally
 // add removeCanvases to clear up at the end of a game

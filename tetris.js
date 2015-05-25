@@ -530,6 +530,10 @@ function gameLoop() {
             greyOutStackLevel(stack, spriteCanvas, toGreyRow);
             toGreyRow--;
         }
+        if (toGreyRow == 2 && multiplayer) {
+            //Current player has lost.
+            endPlayer(numPlayers, LOSER);
+        }
     }
 }
 
