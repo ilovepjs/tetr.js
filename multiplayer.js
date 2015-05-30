@@ -33,6 +33,7 @@ function handleRoomCreated(roomID) {
     roomID = roomID;
     window.location.hash = roomID;
 
+    window.document.getElementById('multiplayer-url').innerText = GAMESERVER_URL + roomID
     joinRoom();
 }
 
