@@ -432,10 +432,7 @@ function update() {
 
     if (piece.update()) {
         if (multiplayer) {
-            var rotation = piece.pos
-            var position = [piece.x, piece.y]
-            // gameClient.dropPiece(rotation, position);
-            sendLines(piece.tetro);
+            dropPiece(piece.tetro);
         } else {
             stack.addPiece(piece.tetro, true, piece.spriteCanvas);
         }
@@ -532,7 +529,7 @@ function gameLoop() {
         }
         if (toGreyRow == 2 && multiplayer) {
             //Current player has lost.
-            endPlayer(numPlayers, LOSER);
+            endPlayer(THIS_PLAYER_INDEX, LOSER);
         }
     }
 }

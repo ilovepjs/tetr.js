@@ -6,13 +6,21 @@ var BOARD_WIDTH = 10;
 var LOSER = "LOSER!";
 var WINNER = "WINNER!";
 
-var GAMESERVER_URL = "http://todo.get";
+var THIS_PLAYER_INDEX = 0;
+
+var GAMESERVER_URL = "ws://10.0.0.15:8080/ws";
 
 var numPlayers = 0;
 var stacks = {};
 var divs = [];
 
-var gameClient = new GameClient(GAMESERVER_URL, ['ws']);
+var onOpen = function() {
+    if (window.location.hash != '') {
+        gameClient.joinRoom(hash.replace('#', ''));
+        menu(CONNECTING_MENU);
+    }
+}
+var gameClient = new GameClient(GAMESERVER_URL, onOpen);
 var roomID;
 
 var host = false;
@@ -21,27 +29,22 @@ var TEMP_LOSE;
 
 //TALKS TO GAMESERVER
 function createRoom() {
-    //gameClient.createRoom();
+    gameClient.createRoom();
     menu(CONNECTING_MENU);
 }
 
 //FROM GAMESERVER
 function handleRoomCreated(roomID) {
     host = true;
-    multiplayer = true;
 
     roomID = roomID;
     window.location.hash = roomID;
 
-    window.document.getElementById('multiplayer-url').innerText = GAMESERVER_URL + roomID
-    joinRoom();
+    window.document.getElementById('multiplayer-url').innerText = 'this is my url'
 }
 
 //TALKS TO GAMESERVER
 function joinRoom() {
-    spriteCanvasTwo = document.getElementById('spriteTwo');
-    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
-
     if (currentMenu != CONNECTING_MENU) {
         menu(CONNECTING_MENU);
     }
@@ -50,7 +53,7 @@ function joinRoom() {
 //TALKS TO GAMESERVER
 function leaveRoom() {
     roomID = '';
-    //gameClient.leaveRoom(roomID)
+    gameClient.leaveRoom(roomID)
     menu(MAIN_MENU);
 }
 
@@ -58,17 +61,21 @@ function leaveRoom() {
 function handlePlayerJoin() {
     if (currentMenu == CONNECTING_MENU) {
         menu(WAITING_ON_PLAYERS_MENU);
+
+        divs.push(document.getElementById("b"));
+        stacks[numPlayers] = getCurrentPlayerStack();
     } else {
         createStack();
-        numPlayers ++
-
-        clearStackCtxs();
 
         //Show start game option to host when 2+ players
         if (numPlayers == 1 && host) {
             showStartGameButton();
         }
     }
+    numPlayers ++
+    clearStackCtxs();
+
+    window.document.getElementById('room-count').innerText = numPlayers
 }
 
 //Draws a player's stack when they enter a room
@@ -96,9 +103,7 @@ function createStack() {
 
 //TALKS TO SERVER
 function serverStartGame() {
-    //Push on player's stack last
-    divs.push(document.getElementById("b"));
-    stacks[numPlayers] = getCurrentPlayerStack();
+    gameClient.requestGameStart();
 }
 
 //FROM GAMESERVER
@@ -118,14 +123,14 @@ function clearStackCtxs() {
 }
 
 function drawStacks() {
-    for (var i = 0; i < numPlayers; i++) {
+    for (var i = 0; i <= numPlayers; i++) {
         stacks[i].draw(getSpriteCanvas(i));
     }
 }
 
 function resizeStackCanvases() {
-    var cellSize = getCellSize() - (numPlayers * 6);
-    for (var i = 0; i < numPlayers; i++) {
+    var cellSize = getCellSize() - (numPlayers * 4);
+    for (var i = 1; i < numPlayers; i++) {
         var canvas = divs[i].getElementsByTagName("canvas")[0];
         var msg = divs[i].getElementsByTagName("p")[0];
 
@@ -142,15 +147,13 @@ function resizeStackCanvases() {
     }
 }
 
-//sends players lines to the server
-function sendLines(tetro) {
-    for (var i = 0; i < numPlayers; i++) {
-        if (TEMP_LOSE[i]) {
-            break;
-        }
-        stacks[i].addPiece(tetro, false, getSpriteCanvas(i));
-    }
-    stacks[numPlayers].addPiece(tetro, true, getSpriteCanvas(numPlayers));
+//TALKS TO SERVER
+function dropPiece(tetro) {
+    stacks[THIS_PLAYER_INDEX].addPiece(tetro, true, getSpriteCanvas(THIS_PLAYER_INDEX));
+
+    var rotation = piece.pos
+    var position = [piece.x, piece.y]
+    gameClient.dropPiece(rotation, position);
 }
 
 //adds lines to players stacks
@@ -194,13 +197,13 @@ function endPlayer(id, status) {
 
     TEMP_LOSE[id + ""] = true;
 
-    if (id == numPlayers) {
+    if (id == THIS_PLAYER_INDEX) {
         gameState = 9;
     }
 }
 
 function end(winner) {
-    for (var i = 0; i <= numPlayers; i++) {
+    for (var i = 0; i < numPlayers; i++) {
         if (i == winner) {
             endPlayer(i, WINNER);
         } else {
@@ -235,28 +238,17 @@ function getSpriteCanvas(i) {
     return document.getElementById(divs[i].dataset.spritecanvas);
 }
 
-window.onhashchange = function() {
-    hash = window.location.hash;
-    if (hash == '') {
-        leaveRoom();
-    } else {
-        roomID = hash.replace('#', '');
-        joinRoom();
-    }
-}
-
 window.onload = function() {
-    hash = window.location.hash;
-    if (window.location.hash != '') {
-        roomID = hash.replace('#', '');
-        joinRoom();
-    }
-}
+    multiplayer = true;
+    roomID = window.location.hash
 
-function tempStart() {
-    handleRoomCreated('asd')
-    handlePlayerJoin()
-    handlePlayerJoin()
-    serverStartGame()
-    handleStartGame()
+    if (roomID != '') {
+        menu(CONNECTING_MENU);
+    }
+
+    spriteCanvasTwo = document.getElementById('spriteTwo');
+    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+
+    window.document.getElementById('room-count').style['visibility'] = 'visible'
+    window.document.getElementById('room-count-id').style['visibility'] = 'visible'
 }
