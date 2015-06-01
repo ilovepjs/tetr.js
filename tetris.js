@@ -217,15 +217,17 @@ resize();
 function init(gt) {
     if (gt === 'replay') {
         watchingReplay = true;
+        rng.seed = replayKeys.seed;
     } else {
         watchingReplay = false;
         replayKeys = {};
-        // TODO Make new seed and rng method.
-        replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
         gametype = gt;
 
         if (multiplayer === undefined) {
             multiplayer = false;
+            rng.seed = ~~(Math.random() * 2147483645) + 1;
+        } else {
+            rng.seed = MULTIPLAYER_GAME_SEED;
         }
     }
 
@@ -244,7 +246,6 @@ function init(gt) {
     pauseTime = 0;
     paused = false;
 
-    rng.seed = replayKeys.seed;
     toGreyRow = 21;
     frame = 0;
     lastPos = 'reset';
@@ -368,9 +369,8 @@ function randomGenerator() {
 /**
  * Park Miller "Minimal Standard" PRNG.
  */
-//TODO put random seed method in here.
 var rng = new (function () {
-    this.seed = 1;
+    this.seed;
     this.next = function () {
         return (this.gen() / 2147483647);
     }

@@ -1,17 +1,17 @@
 MESSAGE_TYPES = {
-    createRoom : 'createRoom',
-    joinRoom : 'joinRoom',
-    leaveRoom : 'leaveRoom',
-    start : 'requestGameStart',
-    dropPiece : 'dropPiece',
-    toppedOut : 'toppedOut'
+    createRoom: 'createRoom',
+    joinRoom: 'joinRoom',
+    leaveRoom: 'leaveRoom',
+    start: 'requestGameStart',
+    move: 'move',
+    toppedOut: 'toppedOut'
 };
 
 //WHY DO I NEED THIS
 function GameClient(url, onOpen) {
-    //this.socket = new WebSocket(url);
-    //this.socket.onmessage = this.onmessage.bind(this);
-    //this.socket.onopen = onOpen;
+    this.socket = new WebSocket(url);
+    this.socket.onmessage = this.onmessage.bind(this);
+    this.socket.onopen = onOpen;
     this.playerMapping = {}
 }
 
@@ -21,25 +21,24 @@ GameClient.prototype.close = function() {
 
 GameClient.prototype.send = function(type, data) {
     console.log('out --> ' + type)
-    console.log('out --> ' + data)
 
     msg = JSON.stringify({
         type: type,
         data: data
     });
 
-    //this.socket.send(msg);
+    this.socket.send(msg);
 };
 
 GameClient.prototype.onmessage = function(event) {
     var msg = JSON.parse(event.data);
     var data = msg.data;
     var type = msg.type;
-    console.log(data);
+    console.log(type, data);
     switch(type) {
-        case "gameStart":
-            seed = data.seed;
-            // init(2)
+        case "gameStarted":
+            MULTIPLAYER_GAME_SEED = data.seed;
+            init(2)
             break;
         case "roomCreated":
             handleRoomCreated(data.roomID)
@@ -62,6 +61,11 @@ GameClient.prototype.onmessage = function(event) {
             var player = data.playerID;
             // remove players stack this.playerMapping[player]
             this.removePlayerFromMapping(player);
+            break;
+        case "roomInfo":
+            for (var playerID in data.players) {
+                this.addPlayer(playerID);
+            }
             break;
     }
 };
@@ -86,8 +90,8 @@ GameClient.prototype.requestGameStart = function() {
     this.send(MESSAGE_TYPES.start, {});
 };
 
-GameClient.prototype.dropPiece = function(rotation, position) {
-    type = MESSAGE_TYPES.dropPiece;
+GameClient.prototype.move = function(rotation, position) {
+    type = MESSAGE_TYPES.move;
     data = {
         rotation: rotation,
         position: position

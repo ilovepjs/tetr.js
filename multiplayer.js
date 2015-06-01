@@ -8,14 +8,16 @@ var WINNER = "WINNER!";
 
 var THIS_PLAYER_INDEX = 0;
 
-var GAMESERVER_URL = "ws://10.0.0.15:8080/ws";
+var GAMESERVER_URL = "ws://forthcoming.co:8080/ws";
 
 var numPlayers = 0;
 var stacks = {};
 var divs = [];
+var MULTIPLAYER_GAME_SEED;
 
 var onOpen = function() {
-    if (window.location.hash != '') {
+    hash = window.location.hash
+    if (hash != '') {
         gameClient.joinRoom(hash.replace('#', ''));
         menu(CONNECTING_MENU);
     }
@@ -40,7 +42,7 @@ function handleRoomCreated(roomID) {
     roomID = roomID;
     window.location.hash = roomID;
 
-    window.document.getElementById('multiplayer-url').innerText = 'this is my url'
+    window.document.getElementById('multiplayer-url').innerText = window.document.URL;
 }
 
 //TALKS TO GAMESERVER
@@ -153,7 +155,7 @@ function dropPiece(tetro) {
 
     var rotation = piece.pos
     var position = [piece.x, piece.y]
-    gameClient.dropPiece(rotation, position);
+    gameClient.move(rotation, position);
 }
 
 //adds lines to players stacks
