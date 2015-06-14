@@ -6,20 +6,22 @@ var BOARD_WIDTH = 10;
 var LOSER = "LOSER!";
 var WINNER = "WINNER!";
 
-var THIS_PLAYER_INDEX = 0;
+var THIS_PLAYER;
 
-var GAMESERVER_URL = "ws://forthcoming.co:8080/ws";
+var GAMESERVER_URL = "ws://73.222.32.54:8080/ws";
 
 var numPlayers = 0;
 var stacks = {};
-var divs = [];
+var divs = {};
 var MULTIPLAYER_GAME_SEED;
 
 var onOpen = function() {
     hash = window.location.hash
     if (hash != '') {
         gameClient.joinRoom(hash.replace('#', ''));
+        multiplayer = true;
         menu(CONNECTING_MENU);
+        window.document.getElementById('multiplayer-url').innerText = hash;
     }
 }
 var gameClient = new GameClient(GAMESERVER_URL, onOpen);
@@ -38,6 +40,7 @@ function createRoom() {
 //FROM GAMESERVER
 function handleRoomCreated(roomID) {
     host = true;
+    multiplayer = true;
 
     roomID = roomID;
     window.location.hash = roomID;
@@ -60,14 +63,15 @@ function leaveRoom() {
 }
 
 //FROM GAMESERVER
-function handlePlayerJoin() {
+function handlePlayerJoin(playerID) {
     if (currentMenu == CONNECTING_MENU) {
         menu(WAITING_ON_PLAYERS_MENU);
 
-        divs.push(document.getElementById("b"));
-        stacks[numPlayers] = getCurrentPlayerStack();
+        THIS_PLAYER = playerID;
+        divs[playerID] = document.getElementById("b");
+        stacks[playerID] = getCurrentPlayerStack();
     } else {
-        createStack();
+        createStack(playerID);
 
         //Show start game option to host when 2+ players
         if (numPlayers == 1 && host) {
@@ -80,9 +84,29 @@ function handlePlayerJoin() {
     window.document.getElementById('room-count').innerText = numPlayers
 }
 
+//FROM GAMESERVER
+function handlePlayerLeave(playerID) {
+    removeStack(playerID);
+
+    numPlayers --;
+    clearStackCtxs();
+
+    window.document.getElementById('room-count').innerText = numPlayers
+}
+
+//Remove a player's stack when they leave a room
+function removeStack(playerID) {
+    var div = document.getElementById(playerID);
+    div.parentNode.removeChild(div);
+
+    delete divs[playerID];
+    delete stacks[playerID];
+}
+
 //Draws a player's stack when they enter a room
-function createStack() {
+function createStack(playerID) {
     var div = document.createElement("div");
+    div.setAttribute("id", playerID);
     div.setAttribute("class", "b");
     div.setAttribute("data-spritecanvas", "spriteTwo");
 
@@ -96,11 +120,11 @@ function createStack() {
     div.appendChild(msg);
 
     document.getElementById("content").appendChild(div);
-    divs.push(div);
+    divs[playerID] = div;
 
     var stack = new Stack(stackCanvas.getContext("2d"));
     stack.new(10, 22);
-    stacks[numPlayers] = stack;
+    stacks[playerID] = stack;
 }
 
 //TALKS TO SERVER
@@ -116,32 +140,32 @@ function handleStartGame(randomSeed) {
 }
 
 function clearStackCtxs() {
-    for (var i = 0; i < numPlayers; i++) {
-        var stackCtx = divs[i].getElementsByTagName("canvas")[0].getContext("2d");
-        stacks[i].new(10,22);
+    for (var key in divs) {
+        var stackCtx = divs[key].getElementsByTagName("canvas")[0].getContext("2d");
+        stacks[key].new(10,22);
         clear(stackCtx);
     }
     resizeStackCanvases();
 }
 
 function drawStacks() {
-    for (var i = 0; i <= numPlayers; i++) {
-        stacks[i].draw(getSpriteCanvas(i));
+    for (var key in stacks) {
+        stacks[key].draw(getSpriteCanvas(key));
     }
 }
 
 function resizeStackCanvases() {
     var cellSize = getCellSize() - (numPlayers * 4);
-    for (var i = 1; i < numPlayers; i++) {
-        var canvas = divs[i].getElementsByTagName("canvas")[0];
-        var msg = divs[i].getElementsByTagName("p")[0];
+    for (var key in divs) {
+        var canvas = divs[key].getElementsByTagName("canvas")[0];
+        var msg = divs[key].getElementsByTagName("p")[0];
 
         canvas.cellSize = cellSize;
 
         canvas.width = cellSize * 10;
         canvas.height = cellSize * 20;
-        divs[i].style.width = canvas.width + "px";
-        divs[i].style.height = canvas.height + "px";
+        divs[key].style.width = canvas.width + "px";
+        divs[key].style.height = canvas.height + "px";
 
         makeSprite(canvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
 
@@ -151,10 +175,11 @@ function resizeStackCanvases() {
 
 //TALKS TO SERVER
 function dropPiece(tetro) {
-    stacks[THIS_PLAYER_INDEX].addPiece(tetro, true, getSpriteCanvas(THIS_PLAYER_INDEX));
+    stacks[THIS_PLAYER].addPiece(tetro, true, getSpriteCanvas(THIS_PLAYER));
 
-    var rotation = piece.pos
-    var position = [piece.x, piece.y]
+    var rotation = piece.pos;
+    var position = piece.x - 2;
+    console.log(rotation, position);
     gameClient.move(rotation, position);
 }
 
@@ -199,7 +224,7 @@ function endPlayer(id, status) {
 
     TEMP_LOSE[id + ""] = true;
 
-    if (id == THIS_PLAYER_INDEX) {
+    if (id == THIS_PLAYER) {
         gameState = 9;
     }
 }
@@ -241,7 +266,6 @@ function getSpriteCanvas(i) {
 }
 
 window.onload = function() {
-    multiplayer = true;
     roomID = window.location.hash
 
     if (roomID != '') {

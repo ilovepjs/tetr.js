@@ -12,7 +12,7 @@ function GameClient(url, onOpen) {
     this.socket = new WebSocket(url);
     this.socket.onmessage = this.onmessage.bind(this);
     this.socket.onopen = onOpen;
-    this.playerMapping = {}
+    this.players = [];
 }
 
 GameClient.prototype.close = function() {
@@ -22,7 +22,7 @@ GameClient.prototype.close = function() {
 GameClient.prototype.send = function(type, data) {
     console.log('out --> ' + type)
 
-    msg = JSON.stringify({
+    var msg = JSON.stringify({
         type: type,
         data: data
     });
@@ -37,7 +37,8 @@ GameClient.prototype.onmessage = function(event) {
     console.log(type, data);
     switch(type) {
         case "gameStarted":
-            MULTIPLAYER_GAME_SEED = data.seed;
+            MULTIPLAYER_GAME_SEED = '1834645441';
+            //MULTIPLAYER_GAME_SEED = data.seed;
             init(2)
             break;
         case "roomCreated":
@@ -48,7 +49,7 @@ GameClient.prototype.onmessage = function(event) {
             addLines(data.lines)
             break;
         case "playerDead":
-            playerID = this.playerMapping[data.playerID]
+            playerID = data.playerID;
             board = data.board
             break;
         case "gameOver":
@@ -58,13 +59,12 @@ GameClient.prototype.onmessage = function(event) {
             this.addPlayer(data.playerID);
             break;
         case "playerLeave":
-            var player = data.playerID;
-            // remove players stack this.playerMapping[player]
-            this.removePlayerFromMapping(player);
+            this.removePlayer(data.playerID);
             break;
-        case "roomInfo":
-            for (var playerID in data.players) {
-                this.addPlayer(playerID);
+        case "roomDigest":
+            var players = data.players;
+            for (var i = 0; i < players.length; i++) {
+                this.addPlayer(players[i].playerID);
             }
             break;
     }
@@ -103,20 +103,24 @@ GameClient.prototype.toppedOut = function() {
     this.send(MESSAGE_TYPES.toppedOut, {});
 }
 
-GameClient.prototype.removePlayerToMapping = function(playerID) {
-    delete this.playerMapping[playerID];
+GameClient.prototype.removePlayer = function(playerID) {
+    playerIndex = this.players.indexOf(playerID);
+    if (playerIndex != -1) {
+        handlePlayerLeave(playerID);
+        this.players.splice(playerIndex, 1);
+    }
 }
 
 GameClient.prototype.addPlayer = function(playerID) {
-    if (!(playerID in this.playerMapping)) {
-        this.playerMapping[playerID] = numPlayers;
-        handlePlayerJoin();
+    playerIndex = this.players.indexOf(playerID);
+    if (playerIndex == -1) {
+        this.players.push(playerID);
+        handlePlayerJoin(playerID);
     }
 }
 
 //stop making it send 40lines for multiplayer
 //go back to sprint after multiplayer (multipalyer = false)
-//handle numPlayers and for loops for game on joins during a game
 //refactor menus
 //stop pieces being able to drop on end(-)
 //when num drops below 2 start button bye bye
@@ -127,3 +131,7 @@ GameClient.prototype.addPlayer = function(playerID) {
 // and ill figure out a way to represent it internally
 // add removeCanvases to clear up at the end of a game
 // disable pause on server controlled game
+// show server down message if server down
+// can start a new game on finished if host
+// remove retry and pause option during a game controlled by the server
+
