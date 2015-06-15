@@ -356,19 +356,6 @@ function unpause() {
 }
 
 /**
- * Park Miller "Minimal Standard" PRNG.
- */
-var rng = new (function () {
-    this.seed;
-    this.next = function () {
-        return (this.gen() / 2147483647);
-    }
-    this.gen = function () {
-        return this.seed = (this.seed * 16807) % 2147483647;
-    }
-})();
-
-/**
  * Draws the stats next to the tetrion.
  */
 function statistics() {

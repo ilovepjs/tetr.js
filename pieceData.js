@@ -95,7 +95,8 @@ var PieceZ = {
         [7, 7, 0],
         [0, 7, 0]]
 };
-var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
+
+var pieces = [PieceZ, PieceL, PieceO, PieceS, PieceI, PieceJ, PieceT];
 
 // Finesse data
 // index x orientatio x column = finesse
