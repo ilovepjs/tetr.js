@@ -228,6 +228,8 @@ function init(gt) {
             rng.seed = ~~(Math.random() * 2147483645) + 1;
         } else {
             rng.seed = MULTIPLAYER_GAME_SEED;
+            var lineCountDiv = document.getElementById('line')
+            lineCountDiv.parentElement.getElementsByClassName('stat-name')[0].innerText = 'Lines Sent'
         }
     }
 
@@ -297,6 +299,7 @@ function init(gt) {
     // Multiplayer
     if (gametype === 2) {
         document.getElementById("b").setAttribute("data-spritecanvas", "sprite");
+        statsLines.innerHTML = 0;
 
         setTimeout(function () {
             addLines([1, 2, 4, 6]);

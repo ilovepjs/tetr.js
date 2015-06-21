@@ -88,7 +88,10 @@ Stack.prototype.addPiece = function (tetro, modifyStats, spriteCanvas) {
         piecesSet++;
         statsPiece.innerHTML = piecesSet;
 
-        if (gametype !== 3) {
+        if (multiplayer) {
+            statsLines.innerHTML = lines;
+        }
+        else if (gametype !== 3) {
             statsLines.innerHTML = lineLimit - lines;
         }
         else {

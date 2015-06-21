@@ -8,7 +8,7 @@ var WINNER = "WINNER!";
 
 var THIS_PLAYER;
 
-var GAMESERVER_URL = "ws://73.222.32.54:8080/ws";
+var GAMESERVER_URL = "ws://forthcoming.co:8080/ws";
 
 var numPlayers = 0;
 var stacks = {};

@@ -134,4 +134,4 @@ GameClient.prototype.addPlayer = function(playerID) {
 // show server down message if server down
 // can start a new game on finished if host
 // remove retry and pause option during a game controlled by the server
-
+//fix race condition no press button before connected to websocket
