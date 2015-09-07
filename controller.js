@@ -6,7 +6,7 @@ addEventListener('keydown', function (e) {
     //TODO if active, prevent default for binded keys
     //if (bindsArr.indexOf(e.keyCode) !== -1)
     //  e.preventDefault();
-    if (e.keyCode === binds.pause) {
+    if (e.keyCode === binds.pause && !multiplayer) {
         if (paused) {
             unpause();
         } else {

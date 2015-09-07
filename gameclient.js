@@ -126,7 +126,6 @@ GameClient.prototype.addPlayer = function(playerID) {
 //different way of dropping pieces, if you give me a board theyre all grey, think it'll be cooler to go for straight real time
 // and ill figure out a way to represent it internally
 // add removeCanvases to clear up at the end of a game
-// disable pause on server controlled game
 // show server down message if server down
 // can start a new game on finished if host
 // remove retry and pause option during a game controlled by the server
