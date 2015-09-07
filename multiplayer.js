@@ -8,7 +8,7 @@ var WINNER = "WINNER!";
 
 var THIS_PLAYER;
 
-var GAMESERVER_URL = "ws://forthcoming.co:8080/ws";
+var GAMESERVER_URL = "ws://67.188.3.7:8080/ws";
 
 var numPlayers = 0;
 var stacks = {};
@@ -178,7 +178,7 @@ function dropPiece(tetro) {
     stacks[THIS_PLAYER].addPiece(tetro, true, getSpriteCanvas(THIS_PLAYER));
 
     var rotation = piece.pos;
-    var position = piece.x - 2;
+    var position = piece.x - pieces[piece.index].x
     console.log(rotation, position);
     gameClient.move(rotation, position);
 }
@@ -286,3 +286,9 @@ function testStart() {
   MULTIPLAYER_GAME_SEED = '1834645441'
   init(2);
 }
+
+function testServerStart() {
+createRoom()
+serverStartGame()
+}
+testServerStart();

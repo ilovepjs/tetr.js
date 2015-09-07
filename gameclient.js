@@ -7,7 +7,6 @@ MESSAGE_TYPES = {
     toppedOut: 'toppedOut'
 };
 
-//WHY DO I NEED THIS
 function GameClient(url, onOpen) {
     this.socket = new WebSocket(url);
     this.socket.onmessage = this.onmessage.bind(this);
@@ -20,8 +19,6 @@ GameClient.prototype.close = function() {
 };
 
 GameClient.prototype.send = function(type, data) {
-    console.log('out --> ' + type)
-
     var msg = JSON.stringify({
         type: type,
         data: data
@@ -37,8 +34,8 @@ GameClient.prototype.onmessage = function(event) {
     console.log(type, data);
     switch(type) {
         case "gameStarted":
-            MULTIPLAYER_GAME_SEED = '1834645441';
-            //MULTIPLAYER_GAME_SEED = data.seed;
+            MULTIPLAYER_GAME_SEED = data.seed;
+            //MULTIPLAYER_GAME_SEED = 1151664364;
             init(2)
             break;
         case "roomCreated":

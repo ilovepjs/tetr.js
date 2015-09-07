@@ -56,6 +56,11 @@ Piece.prototype.new = function (index, spriteCanvas) {
 
 Piece.prototype.rotate = function (direction) {
 
+    // If O piece, ignore rotation.
+    if (piece.tetro === PieceO.tetro) {
+        return;
+    }
+
     // Rotates tetromino.
     var rotated = [];
     var i, row;
@@ -75,7 +80,7 @@ Piece.prototype.rotate = function (direction) {
         }
     }
 
-    // Goes thorugh kick data until it finds a valid move.
+    // Goes through kick data until it finds a valid move.
     var curPos = this.pos.mod(4);
     var newPos = (this.pos + direction).mod(4);
 
