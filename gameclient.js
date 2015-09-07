@@ -119,7 +119,6 @@ GameClient.prototype.addPlayer = function(playerID) {
     }
 }
 
-//stop making it send 40lines for multiplayer
 //go back to sprint after multiplayer (multipalyer = false)
 //refactor menus
 //stop pieces being able to drop on end(-)

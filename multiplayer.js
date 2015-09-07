@@ -185,7 +185,7 @@ function dropPiece(tetro) {
 
 //adds lines to players stacks
 function addLines(gap_positions) {
-    lines = gap_positions.length
+    var lines = gap_positions.length
     for (var y = 0; y <= BOARD_HEIGHT - lines; y++) {
         for (var x = 0; x < BOARD_WIDTH; x++) {
             if (stack.grid[x][y + lines] !== undefined) {
@@ -277,4 +277,12 @@ window.onload = function() {
 
     window.document.getElementById('room-count').style['visibility'] = 'visible'
     window.document.getElementById('room-count-id').style['visibility'] = 'visible'
+}
+
+function testStart() {
+  handleRoomCreated('test');
+  gameClient.addPlayer('1');
+  gameClient.addPlayer('2');
+  MULTIPLAYER_GAME_SEED = '1834645441'
+  init(2);
 }
