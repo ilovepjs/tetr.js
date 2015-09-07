@@ -184,22 +184,23 @@ function dropPiece(tetro) {
 }
 
 //adds lines to players stacks
-function addLines(gap_positions) {
-    var lines = gap_positions.length
-    for (var y = 0; y <= BOARD_HEIGHT - lines; y++) {
+function addLines(lines) {
+    // redraws the current board above the gaps
+    for (var y = 0; y <= BOARD_HEIGHT - lines.length; y++) {
         for (var x = 0; x < BOARD_WIDTH; x++) {
-            if (stack.grid[x][y + lines] !== undefined) {
-                stack.grid[x][y] = stack.grid[x][y + lines];
+            if (stack.grid[x][y + lines.length] !== undefined) {
+                stack.grid[x][y] = stack.grid[x][y + lines.length];
             }
         }
     }
 
-    for (var y = BOARD_HEIGHT; y > BOARD_HEIGHT - lines; y--) {
+    // adds the lines from the bottom of the board
+    for (var y = BOARD_HEIGHT; y > BOARD_HEIGHT - lines.length; y--) {
         for (var x = 0; x < BOARD_WIDTH; x++) {
-            if (x != gap_positions[BOARD_HEIGHT - y]) {
-                stack.grid[x][y] = 8;
-            } else {
+            if (lines[BOARD_HEIGHT - y][x]) {
                 stack.grid[x][y] = undefined;
+            } else {
+                stack.grid[x][y] = 8;
             }
         }
     }
@@ -291,4 +292,3 @@ function testServerStart() {
 createRoom()
 serverStartGame()
 }
-testServerStart();

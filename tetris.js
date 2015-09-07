@@ -302,7 +302,11 @@ function init(gt) {
         statsLines.innerHTML = 0;
 
         setTimeout(function () {
-            addLines([1, 2, 4, 6]);
+            addLines([
+		[0,0,0,1,0,0,0,0,0,0],
+		[0,0,0,0,0,1,0,0,0,0],
+		[0,0,0,0,0,0,0,0,1,0],
+		[0,0,0,0,1,0,0,0,0,0]]);
         }, 6000);
     }
     resize();
